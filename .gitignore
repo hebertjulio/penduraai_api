@@ -1,0 +1,16 @@
+.vscode/
+!.vscode/launch.json
+.mypy_cache/
+.pytest_cache/
+
+/media/*
+/static/*
+
+__pycache__/
+__mypy__/
+
+*.py[cod]
+*.sqlite3
+*.db
+
+.secrets.*

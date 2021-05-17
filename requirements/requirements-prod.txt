@@ -1,0 +1,4 @@
+-r "requirements-base.txt"
+
+psycopg2==2.8.6
+daphne==2.5.0

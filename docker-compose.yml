@@ -1,0 +1,50 @@
+version: '3.4'
+
+services:
+
+  redis:
+    container_name: penduraai_redis
+    image: redis:6.0.5-alpine
+    volumes:
+      - penduraai-redis:/data
+    entrypoint: redis-server --requirepass penduraai --appendonly yes
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h redis -a penduraai PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    network_mode: host
+
+  tasks:
+    container_name: penduraai_tasks
+    image: python:3.8.2
+    working_dir: /usr/app
+    volumes:
+      - .:/usr/app:z
+    depends_on:
+      - redis
+    command: sh -c "
+      pip install -U pip;
+      pip install -r requirements.txt;
+      celery -A penduraai worker -l info"
+    network_mode: host
+
+  api:
+    container_name: penduraai_api
+    image: python:3.8.2
+    stdin_open: true
+    tty: true
+    working_dir: /usr/app
+    volumes:
+      - .:/usr/app:z
+    depends_on:
+      - redis
+    command: sh -c "
+      pip install -U pip;
+      pip install -r requirements.txt;
+      python manage.py migrate;
+      python manage.py runserver 0.0.0.0:8000"
+    network_mode: host
+
+volumes:
+  penduraai-redis:
